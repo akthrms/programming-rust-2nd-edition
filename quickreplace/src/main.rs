@@ -30,7 +30,7 @@ fn parse_args() -> Arguments {
         print_usage();
         eprintln!(
             "{} wrong number of arguments: expected 4, got {}",
-            "Error".red().bold(),
+            "Error:".red().bold(),
             args.len()
         );
         process::exit(1);
