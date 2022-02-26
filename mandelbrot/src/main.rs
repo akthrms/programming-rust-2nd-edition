@@ -1,4 +1,8 @@
+use image::png::PNGEncoder;
+use image::ColorType;
 use num::Complex;
+use std::fs::File;
+use std::io;
 use std::str::FromStr;
 
 fn main() {
@@ -26,13 +30,6 @@ fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
     }
 }
 
-fn parse_complex(s: &str) -> Option<Complex<f64>> {
-    match parse_pair(s, ',') {
-        Some((re, im)) => Some(Complex { re, im }),
-        None => None,
-    }
-}
-
 #[test]
 fn test_parse_pair() {
     assert_eq!(parse_pair::<i32>("", ','), None);
@@ -42,6 +39,13 @@ fn test_parse_pair() {
     assert_eq!(parse_pair::<i32>("10,20xy", ','), None);
     assert_eq!(parse_pair::<f64>("0.5x", 'x'), None);
     assert_eq!(parse_pair::<f64>("0.5x1.5", 'x'), Some((0.5, 1.5)));
+}
+
+fn parse_complex(s: &str) -> Option<Complex<f64>> {
+    match parse_pair(s, ',') {
+        Some((re, im)) => Some(Complex { re, im }),
+        None => None,
+    }
 }
 
 #[test]
@@ -54,4 +58,62 @@ fn test_parse_complex() {
         })
     );
     assert_eq!(parse_complex(",-0.0625"), None);
+}
+
+fn pixel_to_point(
+    bounds: (usize, usize),
+    pixel: (usize, usize),
+    upper_left: Complex<f64>,
+    lower_right: Complex<f64>,
+) -> Complex<f64> {
+    let (width, height) = (
+        lower_right.re - upper_left.re,
+        upper_left.im - lower_right.im,
+    );
+    Complex {
+        re: upper_left.re + pixel.0 as f64 * width / bounds.0 as f64,
+        im: upper_left.im - pixel.1 as f64 * height / bounds.1 as f64,
+    }
+}
+
+#[test]
+fn test_pixel_to_point() {
+    assert_eq!(
+        pixel_to_point(
+            (100, 200),
+            (25, 175),
+            Complex { re: -1.0, im: 1.0 },
+            Complex { re: 1.0, im: -1.0 }
+        ),
+        Complex {
+            re: -0.5,
+            im: -0.75
+        }
+    )
+}
+
+fn render(
+    pixels: &mut [u8],
+    bounds: (usize, usize),
+    upper_left: Complex<f64>,
+    lower_right: Complex<f64>,
+) {
+    assert_eq!(pixels.len(), bounds.0 * bounds.1);
+
+    for row in 0..bounds.1 {
+        for column in 0..bounds.0 {
+            let point = pixel_to_point(bounds, (column, row), upper_left, lower_right);
+            pixels[row * bounds.0 + column] = match escape_time(point, 255) {
+                None => 0,
+                Some(count) => 255 - count as u8,
+            }
+        }
+    }
+}
+
+fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize)) -> Result<(), io::Error> {
+    let output = File::create(filename)?;
+    let encoder = PNGEncoder::new(output);
+    encoder.encode(pixels, bounds.0 as u32, bounds.1 as u32, ColorType::Gray(8))?;
+    Ok(())
 }
