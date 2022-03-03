@@ -4,6 +4,13 @@ pub struct Queue {
 }
 
 impl Queue {
+    pub fn new() -> Self {
+        Queue {
+            older: Vec::new(),
+            younger: Vec::new(),
+        }
+    }
+
     pub fn push(&mut self, c: char) {
         self.younger.push(c);
     }
@@ -27,48 +34,4 @@ impl Queue {
     pub fn split(self) -> (Vec<char>, Vec<char>) {
         (self.older, self.younger)
     }
-
-    pub fn new() -> Self {
-        Queue {
-            older: Vec::new(),
-            younger: Vec::new(),
-        }
-    }
-}
-
-#[test]
-fn test_push_pop() {
-    let mut q = Queue::new();
-
-    q.push('0');
-    q.push('1');
-    assert_eq!(q.pop(), Some('0'));
-
-    q.push('2');
-    assert_eq!(q.pop(), Some('1'));
-    assert_eq!(q.pop(), Some('2'));
-    assert_eq!(q.pop(), None);
-}
-
-#[test]
-fn test_is_empty() {
-    let mut q = Queue::new();
-
-    assert!(q.is_empty());
-    q.push('0');
-    assert!(!q.is_empty());
-}
-
-#[test]
-fn test_split() {
-    let mut q = Queue::new();
-
-    q.push('0');
-    q.push('1');
-    assert_eq!(q.pop(), Some('0'));
-    q.push('2');
-
-    let (older, younger) = q.split();
-    assert_eq!(older, vec!['1']);
-    assert_eq!(younger, vec!['2']);
 }
