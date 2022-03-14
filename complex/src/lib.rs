@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::write;
 use std::ops::{Add, AddAssign, Neg};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -63,3 +65,17 @@ where
 //         self.re == other.re && self.im == other.im
 //     }
 // }
+
+impl fmt::Display for Complex<f64> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let (re, im) = (self.re, self.im);
+        if f.alternate() {
+            let abs = f64::sqrt(re * re + im * im);
+            let angle = f64::atan2(im, re) / std::f64::consts::PI * 180.0;
+            write!(f, "{} ∠ {}°", abs, angle)
+        } else {
+            let im_sign = if self.im < 0.0 { '-' } else { '+' };
+            write!(f, "{} {} {}i", self.re, im_sign, f64::abs(self.im))
+        }
+    }
+}
