@@ -1,10 +1,9 @@
-use async_chat::utils::{self, ChatResult};
-use async_chat::{FromClient, FromServer};
-use async_std::io;
-use async_std::net;
-use async_std::prelude::*;
-use async_std::task;
-use std::sync::Arc;
+use async_chat::{
+    utils::{self, ChatResult},
+    FromClient, FromServer,
+};
+use async_std::{io, net, prelude::*, task};
+use std::{env, sync::Arc};
 
 async fn send_commands(mut to_server: net::TcpStream) -> ChatResult<()> {
     println!(
@@ -93,7 +92,7 @@ async fn handle_replies(from_server: net::TcpStream) -> ChatResult<()> {
 }
 
 fn main() -> ChatResult<()> {
-    let address = std::env::args().nth(1).expect("Usage: client ADDRESS:PORT");
+    let address = env::args().nth(1).expect("Usage: client ADDRESS:PORT");
 
     task::block_on(async {
         let socket = net::TcpStream::connect(address).await?;

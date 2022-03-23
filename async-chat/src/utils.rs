@@ -1,9 +1,6 @@
-use async_std::io;
-use async_std::prelude::*;
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::error::Error;
-use std::marker::Unpin;
+use async_std::{io, prelude::*};
+use serde::{de::DeserializeOwned, Serialize};
+use std::{error::Error, marker::Unpin};
 
 pub type ChatError = Box<dyn Error + Send + Sync + 'static>;
 
