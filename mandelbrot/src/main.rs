@@ -1,9 +1,9 @@
 use image::{codecs::png::PngEncoder, ColorType, ImageEncoder};
 use num::Complex;
-use std::{env, error::Error, fs::File, process, str::FromStr};
+use std::{error::Error, fs::File, str::FromStr};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = std::env::args().collect();
 
     if args.len() != 5 {
         eprintln!("Usage: {} FILE PIXELS UPPER_LEFT LOWER_RIGHT", args[0]);
@@ -11,7 +11,7 @@ fn main() {
             "Example: {} mandel.png 1000x750 -1.20,0.35 -1,0.20",
             args[0]
         );
-        process::exit(1);
+        std::process::exit(1);
     }
 
     let bounds = parse_pair(&args[2], 'x').expect("error parsing image dimensions");
