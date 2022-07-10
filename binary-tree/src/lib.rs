@@ -1,8 +1,10 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
+enum BinaryTree<T> {
+    Empty,
+    NotEmpty(Box<TreeNode<T>>),
+}
+
+struct TreeNode<T> {
+    element: T,
+    left: BinaryTree<T>,
+    right: BinaryTree<T>,
 }
