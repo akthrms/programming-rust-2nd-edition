@@ -32,15 +32,13 @@ async fn cheapo_request(host: &str, port: u16, path: &str) -> std::io::Result<St
     Ok(response)
 }
 
-async fn cheapo_owning_request(host: String, port: u16, path: String) -> std::io::Result<String> {
-    cheapo_request(&host, port, &path).await
-}
-
 async fn many_requests(requests: Vec<(String, u16, String)>) -> Vec<std::io::Result<String>> {
     let mut handles = vec![];
 
     for (host, port, path) in requests {
-        handles.push(task::spawn_local(cheapo_owning_request(host, port, path)));
+        handles.push(task::spawn_local(async move {
+            cheapo_request(&host, port, &path).await
+        }));
     }
 
     let mut results = vec![];
